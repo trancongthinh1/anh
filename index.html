@@ -1,0 +1,734 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><title>Căn Ảnh Thẻ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: light-table workspace — photo stage with mm rulers on the left, numbered workflow panel on the right, reference specs below */
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --stage:#E1E6EC; --ink:#15202B; --muted:#5A6774; --line:#D2D9E0;
+  --accent:#1C63C7; --accent-ink:#FFFFFF; --accent-soft:#E1EBF9; --guide:#D0346B; --warn:#B35A00;
+  --ruler:#728090;
+  --f-display:"Bricolage Grotesque","Be Vietnam Pro",system-ui,sans-serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E141A; --surface:#161E26; --stage:#0A0F14; --ink:#E3E9EF; --muted:#97A3AF; --line:#2A3540;
+  --accent:#5E9DF0; --accent-ink:#0A1522; --accent-soft:#1A2B40; --guide:#F06B98; --warn:#F0A04B;
+  --ruler:#7F8C99; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E141A; --surface:#161E26; --stage:#0A0F14; --ink:#E3E9EF; --muted:#97A3AF; --line:#2A3540;
+  --accent:#5E9DF0; --accent-ink:#0A1522; --accent-soft:#1A2B40; --guide:#F06B98; --warn:#F0A04B;
+  --ruler:#7F8C99; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 56px;display:grid;gap:22px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px}
+h1{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.1;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.lede{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.specline{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.02em}
+.work{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:20px;align-items:start}
+.stage-col{display:grid;gap:10px;min-width:0}
+.stage{background:var(--stage);border-radius:12px;padding:14px 12px 10px;position:relative}
+.stage.drag{outline:2px dashed var(--accent);outline-offset:-6px}
+#pv{display:block;width:100%;touch-action:none;cursor:grab;border-radius:4px}
+#pv.mark{cursor:crosshair}
+#pv:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stage-bar{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;color:var(--muted);font-size:13px}
+#modeMsg.active{color:var(--guide);font-weight:600}
+.legend{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:10px;border:1px dashed var(--guide);background:color-mix(in srgb,var(--guide) 18%,transparent);display:inline-block}
+.note{margin:0;padding:10px 12px;border-radius:8px;background:var(--accent-soft);color:var(--ink);font-size:13px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:2px 18px 18px;display:grid}
+.step{padding-block:16px;border-top:1px solid var(--line);display:grid;gap:10px}
+.step:first-child{border-top:0}
+.step h2{font-family:var(--f-display);font-weight:600;font-size:16px;margin:0;display:flex;gap:10px;align-items:baseline}
+.step h2 .n{font-family:var(--f-mono);font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.06em}
+.hint{margin:0;color:var(--muted);font-size:12.5px}
+.hint.warn{color:var(--warn)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg.two{grid-template-columns:repeat(2,1fr)}
+.seg button{font:inherit;font-weight:600;font-size:15px;padding:8px 6px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:grid;gap:1px;justify-items:center}
+.seg button small{font-family:var(--f-mono);font-weight:400;font-size:10.5px;color:var(--muted)}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-weight:500;font-size:14px;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-align:center}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.wide{width:100%}
+.btn[aria-pressed="true"]{background:var(--guide);border-color:var(--guide);color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible,label.btn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.file{position:relative}
+.file input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.ctl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.ctl label{font-size:13px}
+.ctl output{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ctl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--accent);margin:2px 0}
+.check{display:flex;gap:8px;align-items:center;font-size:13.5px;cursor:pointer}
+.check input{accent-color:var(--accent);width:16px;height:16px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.sw{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.sw-custom{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.sw-custom input{width:34px;height:30px;padding:0;border:1px solid var(--line);border-radius:6px;background:none;cursor:pointer}
+select{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px;margin:0}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-family:var(--f-mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+#status{min-height:1.4em;font-size:13px;color:var(--muted);margin:0}
+.specs{display:grid;gap:14px}
+.specs h2{font-family:var(--f-display);font-weight:700;font-size:22px;margin:8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;align-content:start}
+.card header{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.card .big{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1}
+.card .mm{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.card dl{display:grid;grid-template-columns:92px 1fr;gap:6px 10px;margin:0;font-size:13px}
+.card dt{color:var(--muted)}
+.card dd{margin:0;min-width:0}
+.rules{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:8px}
+.rules h3{margin:0;font-size:15px;font-weight:600}
+.rules ul{margin:0;padding-left:18px;columns:2;column-gap:32px}
+.rules li{margin-bottom:5px;break-inside:avoid}
+.fine{color:var(--muted);font-size:12.5px;margin:0;max-width:80ch}
+.modal{position:fixed;inset:0;background:rgba(8,12,16,.6);display:grid;place-items:center;padding:16px;z-index:20}
+.modal .box{background:var(--surface);color:var(--ink);border-radius:12px;padding:16px;display:grid;gap:12px;max-width:min(520px,100%);max-height:90vh;overflow:auto}
+.modal img{max-height:60vh;justify-self:center;border:1px solid var(--line)}
+@media (max-width:860px){
+  .work{grid-template-columns:minmax(0,1fr)}
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .rules ul{columns:1}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Căn Ảnh Thẻ</h1>
+      <p class="lede">Tải ảnh chân dung lên, đặt đỉnh đầu và cằm vào đúng vùng chuẩn, thay nền rồi xuất file đúng kích thước để nộp online hoặc mang đi in.</p>
+    </div>
+    <div class="specline">20×30 · 30×40 · 40×60 mm · 300–600 dpi</div>
+  </header>
+
+  <main class="work">
+    <section class="stage-col" aria-label="Vùng căn chỉnh ảnh">
+      <div class="stage" id="stage">
+        <div id="canvasBox"><canvas id="pv" tabindex="0" aria-label="Khung ảnh thẻ. Kéo để di chuyển ảnh, cuộn để phóng to."></canvas></div>
+      </div>
+      <div class="stage-bar">
+        <span id="modeMsg">Kéo ảnh để di chuyển · cuộn chuột hoặc chụm 2 ngón để phóng to · phím mũi tên nhích 0,5 mm</span>
+        <span class="legend"><i></i>Vùng đặt đỉnh đầu và cằm</span>
+      </div>
+      <p class="note" id="sampleNote">Đây là ảnh minh hoạ đã được căn sẵn. Tải ảnh của bạn lên ở bước 2 để bắt đầu.</p>
+    </section>
+
+    <aside class="panel" aria-label="Thiết lập">
+      <div class="step">
+        <h2><span class="n">BƯỚC 1</span>Kích thước</h2>
+        <div class="seg" id="sizeSeg">
+          <button type="button" data-size="2x3" aria-pressed="false">2×3<small>20×30 mm</small></button>
+          <button type="button" data-size="3x4" aria-pressed="false">3×4<small>30×40 mm</small></button>
+          <button type="button" data-size="4x6" aria-pressed="true">4×6<small>40×60 mm</small></button>
+        </div>
+        <p class="hint" id="sizeHint"></p>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">BƯỚC 2</span>Ảnh chân dung</h2>
+        <label class="btn primary wide file">Chọn ảnh từ máy
+          <input type="file" id="file" accept="image/*">
+        </label>
+        <p class="hint">Hoặc kéo thả ảnh vào khung, hoặc dán ảnh (Ctrl+V). Nên dùng ảnh chụp thẳng, rõ nét, đứng trước tường trơn.</p>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">BƯỚC 3</span>Căn khuôn mặt</h2>
+        <button type="button" class="btn wide" id="markBtn" aria-pressed="false">Chấm đỉnh đầu và cằm để căn tự động</button>
+        <p class="hint">Chạm vào điểm cao nhất của tóc, rồi điểm thấp nhất của cằm. Ảnh sẽ tự phóng, xoay thẳng và đặt vào giữa khung.</p>
+        <div class="ctl">
+          <label for="zoom">Phóng to</label><output id="zoomVal">100%</output>
+          <input type="range" id="zoom" min="30" max="400" step="1" value="100">
+        </div>
+        <div class="ctl">
+          <label for="rot">Xoay thẳng</label><output id="rotVal">0,0°</output>
+          <input type="range" id="rot" min="-20" max="20" step="0.1" value="0">
+        </div>
+        <div class="row">
+          <button type="button" class="btn" id="flipBtn">Lật ngang</button>
+          <button type="button" class="btn" id="fitBtn">Đặt lại</button>
+        </div>
+        <label class="check"><input type="checkbox" id="guides" checked> Hiện đường chuẩn</label>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">BƯỚC 4</span>Phông nền và ánh sáng</h2>
+        <div class="swatches" id="swatches">
+          <button type="button" class="sw" data-color="#ffffff" style="background:#ffffff" aria-label="Nền trắng" aria-pressed="true"></button>
+          <button type="button" class="sw" data-color="#9fcbf2" style="background:#9fcbf2" aria-label="Nền xanh nhạt" aria-pressed="false"></button>
+          <button type="button" class="sw" data-color="#3c8ce0" style="background:#3c8ce0" aria-label="Nền xanh dương" aria-pressed="false"></button>
+          <button type="button" class="sw" data-color="#e4e6e8" style="background:#e4e6e8" aria-label="Nền xám nhạt" aria-pressed="false"></button>
+          <span class="sw-custom"><input type="color" id="bgCustom" value="#ffffff" aria-label="Chọn màu nền khác">Màu khác</span>
+        </div>
+        <p class="hint" id="bgHint"></p>
+        <label class="check"><input type="checkbox" id="bgOn" checked> Thay phông nền cũ bằng màu đã chọn</label>
+        <div class="ctl" id="tolRow">
+          <label for="tol">Độ nhạy tách nền</label><output id="tolVal">45</output>
+          <input type="range" id="tol" min="10" max="110" step="1" value="45">
+        </div>
+        <p class="hint">Tách nền hoạt động tốt nhất với tường trơn một màu. Nếu mất một phần tóc hoặc da, hãy giảm độ nhạy.</p>
+        <div class="ctl">
+          <label for="bright">Độ sáng</label><output id="brightVal">0</output>
+          <input type="range" id="bright" min="-50" max="50" step="1" value="0">
+        </div>
+        <div class="ctl">
+          <label for="contrast">Tương phản</label><output id="contrastVal">0</output>
+          <input type="range" id="contrast" min="-50" max="50" step="1" value="0">
+        </div>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">BƯỚC 5</span>Xuất ảnh</h2>
+        <div class="seg two" id="fmtSeg">
+          <button type="button" data-fmt="jpg" aria-pressed="true">JPG<small>nộp online, in</small></button>
+          <button type="button" data-fmt="png" aria-pressed="false">PNG<small>không nén mất</small></button>
+        </div>
+        <div class="ctl">
+          <label for="dpi">Độ phân giải</label><span></span>
+          <select id="dpi" style="grid-column:1/-1">
+            <option value="300" selected>300 dpi (chuẩn in ảnh)</option>
+            <option value="350">350 dpi</option>
+            <option value="600">600 dpi (in sắc nét)</option>
+          </select>
+        </div>
+        <div class="ctl" id="qRow">
+          <label for="q">Chất lượng JPG</label><output id="qVal">92</output>
+          <input type="range" id="q" min="60" max="100" step="1" value="92">
+        </div>
+        <dl class="facts">
+          <dt>Kích thước</dt><dd id="fDims">—</dd>
+          <dt>Khi in</dt><dd id="fPrint">—</dd>
+          <dt>Dung lượng</dt><dd id="fSize">đang tính…</dd>
+        </dl>
+        <button type="button" class="btn primary wide" id="exportBtn">Tải ảnh thẻ</button>
+        <button type="button" class="btn wide" id="sheetBtn">Tải tờ in 10×15 cm</button>
+        <p class="hint">Tờ in 10×15 cm xếp nhiều ảnh kèm đường cắt, mang ra tiệm in ảnh là cắt được ngay.</p>
+        <p id="status" aria-live="polite"></p>
+      </div>
+    </aside>
+  </main>
+
+  <section class="specs" aria-labelledby="specTitle">
+    <h2 id="specTitle">Quy chuẩn ảnh thẻ</h2>
+    <div class="cards">
+      <article class="card">
+        <header><span class="big">2×3</span><span class="mm">20 × 30 mm · tỷ lệ 2:3</span></header>
+        <dl>
+          <dt>Pixel</dt><dd>236 × 354 px ở 300 dpi</dd>
+          <dt>Dùng cho</dt><dd>Thẻ học sinh, sinh viên, thẻ thư viện, một số chứng chỉ và giấy tờ nội bộ</dd>
+          <dt>Phông nền</dt><dd>Trắng hoặc xanh nhạt, tuỳ nơi nộp</dd>
+          <dt>Khuôn mặt</dt><dd>Đỉnh đầu cách mép trên khoảng 2–3 mm; từ đỉnh đầu tới cằm chiếm khoảng 70–75% chiều cao ảnh</dd>
+        </dl>
+      </article>
+      <article class="card">
+        <header><span class="big">3×4</span><span class="mm">30 × 40 mm · tỷ lệ 3:4</span></header>
+        <dl>
+          <dt>Pixel</dt><dd>354 × 472 px ở 300 dpi</dd>
+          <dt>Dùng cho</dt><dd>Hồ sơ xin việc, sơ yếu lý lịch, hồ sơ dự thi, nhập học, giấy phép lái xe</dd>
+          <dt>Phông nền</dt><dd>Xanh dương nhạt phổ biến nhất; nhiều nơi nhận cả nền trắng</dd>
+          <dt>Khuôn mặt</dt><dd>Lộ rõ vai; từ đỉnh đầu tới cằm khoảng 65–72% chiều cao ảnh, mặt ở chính giữa</dd>
+        </dl>
+      </article>
+      <article class="card">
+        <header><span class="big">4×6</span><span class="mm">40 × 60 mm · tỷ lệ 2:3</span></header>
+        <dl>
+          <dt>Pixel</dt><dd>472 × 709 px ở 300 dpi</dd>
+          <dt>Dùng cho</dt><dd>Hộ chiếu phổ thông (nộp trực tiếp và trực tuyến), thị thực, hồ sơ hành chính</dd>
+          <dt>Phông nền</dt><dd>Bắt buộc nền trắng với hộ chiếu</dd>
+          <dt>Khuôn mặt</dt><dd>Khuôn mặt chiếm khoảng 75% diện tích ảnh, nhìn thẳng, rõ hai tai</dd>
+          <dt>File online</dt><dd>JPG, dung lượng dưới 4 MB</dd>
+        </dl>
+      </article>
+    </div>
+    <div class="rules">
+      <h3>Yêu cầu chung khi chụp</h3>
+      <ul>
+        <li>Ảnh mới chụp, không quá 6 tháng</li>
+        <li>Mặt nhìn thẳng vào ống kính, không nghiêng, không cúi</li>
+        <li>Đầu để trần, không đội mũ, khăn</li>
+        <li>Không đeo kính, lộ rõ hai tai và lông mày</li>
+        <li>Biểu cảm tự nhiên, miệng khép, mắt mở</li>
+        <li>Ánh sáng đều trên mặt, không bóng đổ lên nền</li>
+        <li>Trang phục lịch sự; tránh áo trắng khi chụp nền trắng</li>
+        <li>In trên giấy ảnh ở 300 dpi trở lên để ảnh không bị vỡ</li>
+      </ul>
+      <p class="fine">Đường chuẩn trong khung là mức tham khảo theo hướng dẫn phổ biến. Mỗi cơ quan có thể có yêu cầu riêng về màu nền và tỷ lệ khuôn mặt, nên hãy đối chiếu với thông báo của nơi bạn nộp hồ sơ.</p>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="box">
+    <strong id="modalTitle">Lưu ảnh</strong>
+    <p class="hint">Nhấn giữ ảnh (trên điện thoại) hoặc nhấp chuột phải và chọn “Lưu hình ảnh” để tải file về.</p>
+    <img id="modalImg" alt="Ảnh đã xuất">
+    <button type="button" class="btn" id="modalClose">Đóng</button>
+  </div>
+</div>
+
+<script>
+(() => {
+const SIZES = {
+  '2x3': {w:20, h:30, crown:[.07,.12], chin:[.79,.85],
+    hint:'20 × 30 mm. Thẻ học sinh, sinh viên, thẻ thư viện.', bg:'Nền trắng hoặc xanh nhạt tuỳ nơi nộp.'},
+  '3x4': {w:30, h:40, crown:[.08,.13], chin:[.74,.81],
+    hint:'30 × 40 mm. Hồ sơ xin việc, sơ yếu lý lịch, dự thi, nhập học.', bg:'Ảnh 3×4 thường dùng nền xanh dương nhạt; nhiều nơi nhận nền trắng.'},
+  '4x6': {w:40, h:60, crown:[.06,.11], chin:[.79,.85],
+    hint:'40 × 60 mm. Hộ chiếu, thị thực, hồ sơ hành chính.', bg:'Ảnh hộ chiếu 4×6 bắt buộc nền trắng.'}
+};
+const S = {size:'4x6', src:null, small:null, iw:0, ih:0, sample:true,
+  s:1, cx:.5, cy:.5, rot:0, flip:false, bright:0, contrast:0,
+  bgOn:true, bg:'#ffffff', tol:45, guides:true, fmt:'jpg', dpi:300, q:.92, mode:null, pts:[]};
+const $ = id => document.getElementById(id);
+const pv = $('pv'), pctx = pv.getContext('2d');
+let L = {}, raf = 0, infoTimer = 0;
+const mid = a => (a[0]+a[1])/2;
+const Z = () => SIZES[S.size];
+const cover = () => Math.max(1, (Z().w/Z().h)/(S.iw/S.ih));
+const vn = (n, d=0) => n.toFixed(d).replace('.', ',');
+
+function fit(){ S.s = cover(); S.cx = .5; S.cy = .5; S.rot = 0; }
+
+/* ---------- sample portrait ---------- */
+function makeSample(){
+  const c = document.createElement('canvas'); c.width = 900; c.height = 1200;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0,0,900,1200); g.addColorStop(0,'#d9d6cf'); g.addColorStop(1,'#ccc8c0');
+  x.fillStyle = g; x.fillRect(0,0,900,1200);
+  x.fillStyle = '#d6a27c'; x.fillRect(418,660,104,230);
+  x.fillStyle = '#26364f'; x.beginPath(); x.moveTo(100,1200);
+  x.bezierCurveTo(120,940,300,870,470,860); x.bezierCurveTo(640,870,820,940,840,1200); x.closePath(); x.fill();
+  x.fillStyle = '#f3f3f1'; x.beginPath(); x.moveTo(392,866); x.lineTo(470,968); x.lineTo(548,866); x.closePath(); x.fill();
+  x.fillStyle = '#d6a27c'; x.beginPath(); x.moveTo(424,866); x.lineTo(470,930); x.lineTo(516,866); x.closePath(); x.fill();
+  x.fillStyle = '#dca983';
+  x.beginPath(); x.ellipse(352,540,22,42,0,0,Math.PI*2); x.fill();
+  x.beginPath(); x.ellipse(588,540,22,42,0,0,Math.PI*2); x.fill();
+  x.fillStyle = '#e4b28d'; x.beginPath(); x.ellipse(470,520,120,160,0,0,Math.PI*2); x.fill();
+  x.fillStyle = '#2a211e'; x.beginPath(); x.ellipse(470,455,130,140,0,Math.PI,Math.PI*2); x.fill();
+  x.beginPath(); x.ellipse(470,455,130,22,0,0,Math.PI); x.fill();
+  x.strokeStyle = '#3a2a22'; x.lineWidth = 6; x.lineCap = 'round';
+  x.beginPath(); x.moveTo(400,498); x.lineTo(448,494); x.moveTo(492,494); x.lineTo(540,498); x.stroke();
+  x.fillStyle = '#2b2220';
+  x.beginPath(); x.ellipse(425,525,12,8,0,0,Math.PI*2); x.fill();
+  x.beginPath(); x.ellipse(515,525,12,8,0,0,Math.PI*2); x.fill();
+  x.strokeStyle = '#b98060'; x.lineWidth = 4;
+  x.beginPath(); x.moveTo(470,540); x.lineTo(462,590); x.lineTo(478,592); x.stroke();
+  x.strokeStyle = '#a5585a'; x.lineWidth = 5;
+  x.beginPath(); x.moveTo(440,628); x.quadraticCurveTo(470,640,500,628); x.stroke();
+  return c;
+}
+
+/* ---------- source ---------- */
+function setSource(src, sample){
+  S.src = src; S.iw = src.naturalWidth || src.width; S.ih = src.naturalHeight || src.height;
+  const k = Math.min(1, 1400/Math.max(S.iw, S.ih));
+  const sm = document.createElement('canvas');
+  sm.width = Math.max(1, Math.round(S.iw*k)); sm.height = Math.max(1, Math.round(S.ih*k));
+  const sx = sm.getContext('2d'); sx.imageSmoothingQuality = 'high'; sx.drawImage(src,0,0,sm.width,sm.height);
+  S.small = sm; S.sample = sample; S.flip = false; S.mode = null; S.pts = [];
+  fit(); $('sampleNote').hidden = !sample; setMark(false);
+  syncUI(); req();
+}
+function loadFile(f){
+  if(!f) return;
+  if(f.type && !f.type.startsWith('image/')){ status('File này không phải ảnh. Hãy chọn ảnh JPG hoặc PNG.'); return; }
+  const url = URL.createObjectURL(f); const im = new Image();
+  im.onload = () => { setSource(im, false); status('Đã tải ảnh. Chấm đỉnh đầu và cằm để căn nhanh.'); };
+  im.onerror = () => status('Trình duyệt không đọc được ảnh này. Ảnh HEIC từ iPhone cần chuyển sang JPG trước.');
+  im.src = url;
+}
+
+/* ---------- render ---------- */
+function hex(h){ h = h.replace('#',''); if(h.length===3) h = h.split('').map(c=>c+c).join('');
+  const n = parseInt(h,16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+function rgba(h,a){ const [r,g,b] = hex(h); return `rgba(${r},${g},${b},${a})`; }
+
+function bgMask(d, W, H){
+  const n = W*H, top = Math.max(2, Math.floor(H*.12));
+  let r=0,g=0,b=0,c=0;
+  for(let y=0;y<top;y++) for(let x=0;x<W;x++){
+    if(x>W*.2 && x<W*.8) continue;
+    const i=(y*W+x)*4; if(d[i+3]<250) continue;
+    r+=d[i]; g+=d[i+1]; b+=d[i+2]; c++;
+  }
+  if(!c) return null;
+  r/=c; g/=c; b/=c;
+  const t2 = S.tol*S.tol, mk = new Uint8Array(n), q = new Int32Array(n);
+  let qh=0, qt=0;
+  const push = p => { if(mk[p]) return; const i=p*4;
+    if(d[i+3]>=250){ const dr=d[i]-r, dg=d[i+1]-g, db=d[i+2]-b; if(dr*dr+dg*dg+db*db>t2) return; }
+    mk[p]=1; q[qt++]=p; };
+  for(let x=0;x<W;x++){ push(x); push((H-1)*W+x); }
+  for(let y=0;y<H;y++){ push(y*W); push(y*W+W-1); }
+  while(qh<qt){ const p=q[qh++], x=p%W;
+    if(x>0) push(p-1); if(x<W-1) push(p+1); if(p>=W) push(p-W); if(p<n-W) push(p+W); }
+  const rad = Math.max(1, Math.round(Math.min(W,H)/350)), span = rad*2+1;
+  const tmp = new Float32Array(n), out = new Float32Array(n);
+  for(let y=0;y<H;y++){ let s=0; const o=y*W;
+    for(let x=-rad;x<=rad;x++) s += mk[o+Math.min(W-1,Math.max(0,x))];
+    for(let x=0;x<W;x++){ tmp[o+x]=s/span;
+      s += mk[o+Math.min(W-1,x+rad+1)] - mk[o+Math.max(0,x-rad)]; } }
+  for(let x=0;x<W;x++){ let s=0;
+    for(let y=-rad;y<=rad;y++) s += tmp[Math.min(H-1,Math.max(0,y))*W+x];
+    for(let y=0;y<H;y++){ out[y*W+x]=s/span;
+      s += tmp[Math.min(H-1,y+rad+1)*W+x] - tmp[Math.max(0,y-rad)*W+x]; } }
+  return out;
+}
+
+function renderPhoto(W, H, full){
+  const src = full ? S.src : S.small;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d', {willReadFrequently:true});
+  x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+  x.save(); x.translate(S.cx*W, S.cy*H); x.rotate(S.rot*Math.PI/180); if(S.flip) x.scale(-1,1);
+  const dh = S.s*H, dw = dh*S.iw/S.ih; x.drawImage(src, -dw/2, -dh/2, dw, dh); x.restore();
+  const id = x.getImageData(0,0,W,H), d = id.data, n = W*H;
+  if(S.bright || S.contrast){
+    const cf = (100+S.contrast)/100, bo = S.bright*1.6;
+    for(let i=0;i<d.length;i+=4){ d[i]=(d[i]-128)*cf+128+bo; d[i+1]=(d[i+1]-128)*cf+128+bo; d[i+2]=(d[i+2]-128)*cf+128+bo; }
+  }
+  const m = S.bgOn ? bgMask(d,W,H) : null;
+  const [br,bg,bb] = hex(S.bg);
+  for(let p=0,i=0;p<n;p++,i+=4){
+    let a = d[i+3]/255; if(m) a *= 1-m[p];
+    d[i]=br+(d[i]-br)*a; d[i+1]=bg+(d[i+1]-bg)*a; d[i+2]=bb+(d[i+2]-bb)*a; d[i+3]=255;
+  }
+  x.putImageData(id,0,0);
+  return c;
+}
+
+function tok(){ const cs = getComputedStyle(document.documentElement);
+  const g = k => cs.getPropertyValue(k).trim();
+  return {guide:g('--guide'), ruler:g('--ruler'), line:g('--line'), ink:g('--ink'), mono:g('--f-mono'), body:g('--f-body')}; }
+
+function layout(){
+  const z = Z(), box = $('canvasBox'), cssW = box.clientWidth, R = 30;
+  const availW = cssW - R - 10;
+  const availH = Math.min(window.innerHeight*0.72, 640) - R - 14;
+  const ppm = Math.max(2, Math.min(availW/z.w, availH/z.h));
+  const pw = z.w*ppm, ph = z.h*ppm;
+  L = {cssW, R, ppm, pw, ph, ox: R + (cssW - R - pw)/2, oy: R, cssH: Math.round(R + ph + 12)};
+}
+
+function draw(){
+  if(!S.src) return;
+  layout();
+  const dpr = window.devicePixelRatio || 1, T = tok(), z = Z(), x = pctx;
+  pv.style.height = L.cssH + 'px';
+  pv.width = Math.round(L.cssW*dpr); pv.height = Math.round(L.cssH*dpr);
+  x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,L.cssW,L.cssH);
+  // dimmed full image for context
+  x.save(); x.beginPath(); x.rect(L.R-2, L.R-2, L.cssW, L.cssH); x.clip(); x.globalAlpha = .28;
+  x.translate(L.ox + S.cx*L.pw, L.oy + S.cy*L.ph); x.rotate(S.rot*Math.PI/180); if(S.flip) x.scale(-1,1);
+  const dh = S.s*L.ph, dw = dh*S.iw/S.ih; x.drawImage(S.small, -dw/2, -dh/2, dw, dh); x.restore();
+  // photo
+  const photo = renderPhoto(Math.max(1,Math.round(L.pw*dpr)), Math.max(1,Math.round(L.ph*dpr)), false);
+  x.drawImage(photo, L.ox, L.oy, L.pw, L.ph);
+  x.strokeStyle = T.ink; x.globalAlpha = .55; x.lineWidth = 1; x.strokeRect(L.ox-.5, L.oy-.5, L.pw+1, L.ph+1); x.globalAlpha = 1;
+  // rulers (mm)
+  x.strokeStyle = T.ruler; x.fillStyle = T.ruler; x.font = `10px ${T.mono}`; x.lineWidth = 1;
+  const skip = L.ppm < 3.5;
+  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  for(let mm=0; mm<=z.w; mm++){
+    if(skip && mm%5) continue;
+    const px = Math.round(L.ox + mm*L.ppm) + .5, len = mm%10===0 ? 10 : mm%5===0 ? 6 : 3;
+    x.beginPath(); x.moveTo(px, L.oy-3); x.lineTo(px, L.oy-3-len); x.stroke();
+    if(mm%10===0 && mm>0) x.fillText(String(mm), px+2, L.oy-14);
+  }
+  x.textAlign = 'right'; x.textBaseline = 'top';
+  for(let mm=0; mm<=z.h; mm++){
+    if(skip && mm%5) continue;
+    const py = Math.round(L.oy + mm*L.ppm) + .5, len = mm%10===0 ? 10 : mm%5===0 ? 6 : 3;
+    x.beginPath(); x.moveTo(L.ox-3, py); x.lineTo(L.ox-3-len, py); x.stroke();
+    if(mm%10===0 && mm>0) x.fillText(String(mm), L.ox-15, py+2);
+  }
+  x.textAlign = 'right'; x.textBaseline = 'alphabetic'; x.fillText('mm', L.ox-6, L.oy-14);
+  // guides
+  if(S.guides){
+    const Y = v => L.oy + v*L.ph;
+    const band = (b, label) => {
+      x.fillStyle = rgba(T.guide,.16); x.fillRect(L.ox, Y(b[0]), L.pw, Y(b[1])-Y(b[0]));
+      x.strokeStyle = T.guide; x.setLineDash([5,4]); x.lineWidth = 1;
+      [b[0],b[1]].forEach(v => { x.beginPath(); x.moveTo(L.ox, Y(v)+.5); x.lineTo(L.ox+L.pw, Y(v)+.5); x.stroke(); });
+      x.setLineDash([]); x.fillStyle = T.guide; x.font = `600 10.5px ${T.body}`; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+      x.fillText(label, L.ox+5, Y(b[0])-3);
+    };
+    band(z.crown, 'Đỉnh đầu'); band(z.chin, 'Cằm');
+    const yc = Y(mid(z.crown)), yh = Y(mid(z.chin)), ry = (yh-yc)/2;
+    x.strokeStyle = rgba(T.guide,.75); x.setLineDash([3,4]);
+    x.beginPath(); x.ellipse(L.ox+L.pw/2, (yc+yh)/2, ry*.7, ry, 0, 0, Math.PI*2); x.stroke();
+    x.strokeStyle = rgba(T.guide,.45);
+    x.beginPath(); x.moveTo(L.ox+L.pw/2+.5, L.oy); x.lineTo(L.ox+L.pw/2+.5, L.oy+L.ph); x.stroke();
+    const ye = yc + (yh-yc)*.47;
+    x.setLineDash([1,3]); x.strokeStyle = rgba(T.guide,.8);
+    x.beginPath(); x.moveTo(L.ox+L.pw*.18, ye); x.lineTo(L.ox+L.pw*.82, ye); x.stroke(); x.setLineDash([]);
+    x.fillStyle = T.guide; x.textAlign = 'right'; x.fillText('Mắt', L.ox+L.pw-5, ye-3);
+  }
+  // mark points
+  S.pts.forEach((p,i) => {
+    const px = L.ox + p.u*L.pw, py = L.oy + p.v*L.ph;
+    x.strokeStyle = T.guide; x.lineWidth = 2; x.beginPath(); x.arc(px,py,7,0,Math.PI*2); x.stroke();
+    x.beginPath(); x.moveTo(px-11,py); x.lineTo(px+11,py); x.stroke();
+    x.fillStyle = T.guide; x.textAlign = 'left'; x.font = `600 11px ${T.body}`; x.fillText(i ? 'Cằm' : 'Đỉnh đầu', px+12, py-6);
+  });
+  scheduleInfo();
+}
+function req(){ if(!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); }
+
+/* ---------- interaction ---------- */
+function pos(e){ const r = pv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+function zoomAbout(px, py, f){
+  const ns = Math.min(cover()*6, Math.max(cover()*.2, S.s*f)); f = ns/S.s;
+  const u = (px-L.ox)/L.pw, v = (py-L.oy)/L.ph;
+  S.s = ns; S.cx = u + (S.cx-u)*f; S.cy = v + (S.cy-v)*f;
+}
+function toImg(u, v){
+  const z = Z(), W = z.w, H = z.h, t = S.rot*Math.PI/180, c = Math.cos(t), s = Math.sin(t);
+  const xp = (u - S.cx)*W, yp = (v - S.cy)*H;
+  let rx = c*xp + s*yp; const ry = -s*xp + c*yp;
+  if(S.flip) rx = -rx;
+  const k = S.s*H/S.ih; return {x: rx/k, y: ry/k};
+}
+function alignTo(A, B){
+  const z = Z(), W = z.w, H = z.h;
+  let ex = B.x - A.x; const ey = B.y - A.y; if(S.flip) ex = -ex;
+  const len = Math.hypot(ex, ey); if(len < 1) return false;
+  let th = Math.PI/2 - Math.atan2(ey, ex);
+  while(th > Math.PI) th -= 2*Math.PI; while(th < -Math.PI) th += 2*Math.PI;
+  if(Math.abs(th) > Math.PI/3) return false;
+  const cT = mid(z.crown), chT = mid(z.chin), k = (chT - cT)*H/len;
+  S.s = k*S.ih/H; S.rot = th*180/Math.PI;
+  let ax = A.x*k; const ay = A.y*k; if(S.flip) ax = -ax;
+  const c = Math.cos(th), s = Math.sin(th);
+  S.cx = (.5*W - (c*ax - s*ay))/W; S.cy = (cT*H - (s*ax + c*ay))/H;
+  return true;
+}
+const DEFAULT_MSG = $('modeMsg').textContent;
+function setMark(on){
+  S.mode = on ? 'mark' : null; S.pts = [];
+  $('markBtn').setAttribute('aria-pressed', on ? 'true' : 'false');
+  $('markBtn').textContent = on ? 'Huỷ chấm điểm' : 'Chấm đỉnh đầu và cằm để căn tự động';
+  pv.classList.toggle('mark', on);
+  $('modeMsg').textContent = on ? 'Chạm vào điểm cao nhất của tóc (đỉnh đầu)' : DEFAULT_MSG;
+  $('modeMsg').classList.toggle('active', on);
+  req();
+}
+function markPoint(p){
+  const u = (p.x-L.ox)/L.pw, v = (p.y-L.oy)/L.ph;
+  S.pts.push({u, v, img: toImg(u, v)});
+  if(S.pts.length === 1){ $('modeMsg').textContent = 'Bây giờ chạm vào điểm thấp nhất của cằm'; req(); return; }
+  const ok = alignTo(S.pts[0].img, S.pts[1].img);
+  setMark(false);
+  status(ok ? 'Đã căn khuôn mặt vào vùng chuẩn. Có thể kéo hoặc phóng thêm nếu cần.' : 'Chưa căn được. Hãy chạm đỉnh đầu trước, sau đó mới chạm cằm.');
+  syncUI();
+}
+const ptrs = new Map(); let pinch = null;
+const pinchState = () => { const [a,b] = [...ptrs.values()];
+  return {d: Math.hypot(a.x-b.x, a.y-b.y) || 1, mx: (a.x+b.x)/2, my: (a.y+b.y)/2}; };
+pv.addEventListener('pointerdown', e => {
+  const p = pos(e);
+  if(S.mode === 'mark'){ e.preventDefault(); markPoint(p); return; }
+  pv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, p);
+  pv.style.cursor = 'grabbing';
+  if(ptrs.size === 2) pinch = pinchState();
+});
+pv.addEventListener('pointermove', e => {
+  if(!ptrs.has(e.pointerId)) return;
+  const p = pos(e);
+  if(ptrs.size === 1){
+    const o = ptrs.get(e.pointerId);
+    S.cx += (p.x-o.x)/L.pw; S.cy += (p.y-o.y)/L.ph; ptrs.set(e.pointerId, p);
+  } else if(ptrs.size === 2 && pinch){
+    ptrs.set(e.pointerId, p); const ns = pinchState();
+    zoomAbout(pinch.mx, pinch.my, ns.d/pinch.d);
+    S.cx += (ns.mx-pinch.mx)/L.pw; S.cy += (ns.my-pinch.my)/L.ph; pinch = ns;
+  }
+  syncUI(); req();
+});
+const up = e => { ptrs.delete(e.pointerId); pinch = ptrs.size === 2 ? pinchState() : null; if(!ptrs.size) pv.style.cursor = ''; };
+pv.addEventListener('pointerup', up); pv.addEventListener('pointercancel', up);
+pv.addEventListener('wheel', e => { e.preventDefault(); const p = pos(e);
+  zoomAbout(p.x, p.y, Math.exp(-e.deltaY*0.0015)); syncUI(); req(); }, {passive:false});
+pv.addEventListener('keydown', e => {
+  const z = Z(), step = .5;
+  const m = {ArrowLeft:[-step/z.w,0], ArrowRight:[step/z.w,0], ArrowUp:[0,-step/z.h], ArrowDown:[0,step/z.h]}[e.key];
+  if(m){ e.preventDefault(); S.cx += m[0]; S.cy += m[1]; req(); return; }
+  if(e.key === '+' || e.key === '='){ e.preventDefault(); zoomAbout(L.ox+L.pw/2, L.oy+L.ph/2, 1.03); syncUI(); req(); }
+  if(e.key === '-'){ e.preventDefault(); zoomAbout(L.ox+L.pw/2, L.oy+L.ph/2, 1/1.03); syncUI(); req(); }
+  if(e.key === 'Escape' && S.mode) setMark(false);
+});
+
+/* ---------- controls ---------- */
+function syncUI(){
+  const z = Z();
+  document.querySelectorAll('#sizeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.size === S.size));
+  document.querySelectorAll('#fmtSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.fmt === S.fmt));
+  document.querySelectorAll('#swatches .sw').forEach(b => b.setAttribute('aria-pressed', b.dataset.color === S.bg));
+  $('sizeHint').textContent = z.hint;
+  $('bgHint').textContent = z.bg;
+  $('bgHint').classList.toggle('warn', S.size === '4x6' && S.bg !== '#ffffff');
+  if(S.src){ const zp = Math.round(S.s/cover()*100); $('zoom').value = zp; $('zoomVal').textContent = zp + '%'; }
+  $('rot').value = Math.max(-20, Math.min(20, S.rot)); $('rotVal').textContent = vn(S.rot,1) + '°';
+  $('tolVal').textContent = S.tol; $('brightVal').textContent = S.bright; $('contrastVal').textContent = S.contrast;
+  $('qVal').textContent = Math.round(S.q*100); $('qRow').hidden = S.fmt !== 'jpg';
+  $('tolRow').style.opacity = S.bgOn ? 1 : .45; $('tol').disabled = !S.bgOn;
+  const [W,H] = pxSize(); $('fDims').textContent = `${W} × ${H} px · ${S.dpi} dpi`;
+  $('fPrint').textContent = `${vn(z.w/10)} × ${vn(z.h/10)} cm`;
+  $('sheetBtn').textContent = `Tải tờ in 10×15 cm (${sheetGrid().count} ảnh)`;
+}
+const pxSize = () => { const z = Z(); return [Math.round(z.w/25.4*S.dpi), Math.round(z.h/25.4*S.dpi)]; };
+
+$('sizeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; S.size = b.dataset.size; syncUI(); req(); });
+$('fmtSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; S.fmt = b.dataset.fmt; syncUI(); scheduleInfo(); });
+$('swatches').addEventListener('click', e => { const b = e.target.closest('.sw'); if(!b) return; S.bg = b.dataset.color; $('bgCustom').value = S.bg; syncUI(); req(); });
+$('bgCustom').addEventListener('input', e => { S.bg = e.target.value.toLowerCase(); syncUI(); req(); });
+$('file').addEventListener('change', e => { loadFile(e.target.files[0]); e.target.value = ''; });
+$('markBtn').addEventListener('click', () => { setMark(S.mode !== 'mark'); if(S.mode) pv.focus(); });
+$('zoom').addEventListener('input', e => { const f = (cover()*e.target.value/100)/S.s; zoomAbout(L.ox+L.pw/2, L.oy+L.ph/2, f); syncUI(); req(); });
+$('rot').addEventListener('input', e => {
+  // rotate around photo centre
+  const nr = +e.target.value, d = (nr - S.rot)*Math.PI/180, z = Z();
+  const ox = (S.cx-.5)*z.w, oy = (S.cy-.5)*z.h, c = Math.cos(d), s = Math.sin(d);
+  S.cx = .5 + (c*ox - s*oy)/z.w; S.cy = .5 + (s*ox + c*oy)/z.h; S.rot = nr; syncUI(); req();
+});
+$('flipBtn').addEventListener('click', () => { S.flip = !S.flip; S.cx = 1 - S.cx; S.rot = -S.rot; syncUI(); req(); });
+$('fitBtn').addEventListener('click', () => { fit(); S.flip = false; syncUI(); req(); });
+$('guides').addEventListener('change', e => { S.guides = e.target.checked; req(); });
+$('bgOn').addEventListener('change', e => { S.bgOn = e.target.checked; syncUI(); req(); });
+$('tol').addEventListener('input', e => { S.tol = +e.target.value; syncUI(); req(); });
+$('bright').addEventListener('input', e => { S.bright = +e.target.value; syncUI(); req(); });
+$('contrast').addEventListener('input', e => { S.contrast = +e.target.value; syncUI(); req(); });
+$('dpi').addEventListener('change', e => { S.dpi = +e.target.value; syncUI(); scheduleInfo(); });
+$('q').addEventListener('input', e => { S.q = e.target.value/100; syncUI(); scheduleInfo(); });
+
+document.addEventListener('paste', e => {
+  const it = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+  if(it){ e.preventDefault(); loadFile(it.getAsFile()); }
+});
+const stage = $('stage');
+document.addEventListener('dragover', e => { e.preventDefault(); stage.classList.add('drag'); });
+document.addEventListener('dragleave', e => { if(!e.relatedTarget) stage.classList.remove('drag'); });
+document.addEventListener('drop', e => { e.preventDefault(); stage.classList.remove('drag'); const f = e.dataTransfer?.files?.[0]; if(f) loadFile(f); });
+
+/* ---------- encode with DPI metadata ---------- */
+const CRC = (() => { const t = new Uint32Array(256);
+  for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(b){ let c = 0xFFFFFFFF; for(let i=0;i<b.length;i++) c = CRC[(c^b[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function jpgDpi(b, dpi){
+  if(b[2]===0xFF && b[3]===0xE0 && b[6]===0x4A && b[7]===0x46 && b[8]===0x49 && b[9]===0x46){
+    b[13]=1; b[14]=dpi>>8; b[15]=dpi&255; b[16]=dpi>>8; b[17]=dpi&255; return b;
+  }
+  const app0 = new Uint8Array([0xFF,0xE0,0,16,0x4A,0x46,0x49,0x46,0,1,1,1,dpi>>8,dpi&255,dpi>>8,dpi&255,0,0]);
+  const o = new Uint8Array(b.length + app0.length); o.set(b.subarray(0,2),0); o.set(app0,2); o.set(b.subarray(2),20); return o;
+}
+function pngDpi(b, dpi){
+  const ppm = Math.round(dpi/0.0254), ch = new Uint8Array(21), dv = new DataView(ch.buffer);
+  dv.setUint32(0,9); ch.set([0x70,0x48,0x59,0x73],4); dv.setUint32(8,ppm); dv.setUint32(12,ppm); ch[16]=1;
+  dv.setUint32(17, crc32(ch.subarray(4,17)));
+  const o = new Uint8Array(b.length+21); o.set(b.subarray(0,33),0); o.set(ch,33); o.set(b.subarray(33),54); return o;
+}
+async function encode(c){
+  const mime = S.fmt === 'png' ? 'image/png' : 'image/jpeg';
+  const blob = await new Promise(r => c.toBlob(r, mime, S.q));
+  let buf = new Uint8Array(await blob.arrayBuffer());
+  buf = S.fmt === 'png' ? pngDpi(buf, S.dpi) : jpgDpi(buf, S.dpi);
+  return new Blob([buf], {type: mime});
+}
+const fmtSize = n => n < 1024*1024 ? `${Math.round(n/1024)} KB` : `${vn(n/1048576,2)} MB`;
+function scheduleInfo(){
+  clearTimeout(infoTimer);
+  infoTimer = setTimeout(async () => {
+    if(!S.src) return;
+    const [W,H] = pxSize(); const b = await encode(renderPhoto(W,H,true));
+    $('fSize').textContent = fmtSize(b.size) + (b.size > 4*1048576 ? ' (vượt 4 MB)' : '');
+  }, 450);
+}
+
+/* ---------- export ---------- */
+function sheetGrid(){
+  const z = Z(), SWm = 101.6, SHm = 152.4, gap = 2, mar = 2;
+  const cols = Math.max(1, Math.floor((SWm-2*mar+gap)/(z.w+gap)));
+  const rows = Math.max(1, Math.floor((SHm-2*mar+gap)/(z.h+gap)));
+  return {cols, rows, count: cols*rows, SWm, SHm, gap};
+}
+let dlP = null;
+function getDl(){
+  if(!dlP) dlP = (window.claude && typeof window.claude.use === 'function')
+    ? Promise.resolve(window.claude.use('downloads')).catch(() => null) : Promise.resolve(null);
+  return dlP;
+}
+function status(t){ $('status').textContent = t; }
+async function saveBlob(blob, name){
+  const dl = await getDl();
+  if(dl){
+    try { await dl.save({filename:name, data:blob}); status('Đã lưu ' + name); return; }
+    catch(e){
+      const code = e && e.code;
+      if(code === 'declined'){ status('Bạn đã huỷ lưu file.'); return; }
+      if(code === 'rate_limited'){ status('Đang có hộp thoại lưu file mở. Hoàn tất nó rồi thử lại.'); return; }
+    }
+  }
+  if(!window.claude){
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    status('Đã tải ' + name); return;
+  }
+  const img = $('modalImg'); if(img.src) URL.revokeObjectURL(img.src);
+  img.src = URL.createObjectURL(blob); $('modalTitle').textContent = name; $('modal').hidden = false;
+  status('Ảnh đã sẵn sàng trong cửa sổ xem trước.');
+}
+$('modalClose').addEventListener('click', () => { $('modal').hidden = true; });
+$('modal').addEventListener('click', e => { if(e.target === $('modal')) $('modal').hidden = true; });
+
+const ext = () => S.fmt === 'png' ? 'png' : 'jpg';
+$('exportBtn').addEventListener('click', async () => {
+  if(!S.src) return; status('Đang xuất ảnh…');
+  const [W,H] = pxSize(); const b = await encode(renderPhoto(W,H,true));
+  await saveBlob(b, `anh-the-${S.size}-${S.dpi}dpi.${ext()}`);
+});
+$('sheetBtn').addEventListener('click', async () => {
+  if(!S.src) return; status('Đang tạo tờ in…');
+  const g = sheetGrid(), k = S.dpi/25.4, [W,H] = pxSize();
+  const SW = Math.round(g.SWm*k), SH = Math.round(g.SHm*k), gap = g.gap*k;
+  const gw = g.cols*W + (g.cols-1)*gap, gh = g.rows*H + (g.rows-1)*gap;
+  const x0 = (SW-gw)/2, y0 = (SH-gh)/2;
+  const c = document.createElement('canvas'); c.width = SW; c.height = SH;
+  const x = c.getContext('2d'); x.fillStyle = '#ffffff'; x.fillRect(0,0,SW,SH);
+  const photo = renderPhoto(W,H,true);
+  x.strokeStyle = '#bdbdbd'; x.lineWidth = Math.max(1, Math.round(S.dpi/300));
+  for(let j=0;j<g.rows;j++) for(let i=0;i<g.cols;i++){
+    const px = Math.round(x0 + i*(W+gap)), py = Math.round(y0 + j*(H+gap));
+    x.drawImage(photo, px, py);
+    x.strokeRect(px - x.lineWidth/2 - .5, py - x.lineWidth/2 - .5, W + x.lineWidth + 1, H + x.lineWidth + 1);
+  }
+  const b = await encode(c);
+  await saveBlob(b, `to-in-10x15-anh-${S.size}-${g.count}tam.${ext()}`);
+});
+
+/* ---------- boot ---------- */
+getDl();
+new ResizeObserver(req).observe($('canvasBox'));
+window.addEventListener('resize', req);
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', req); } catch(e){}
+new MutationObserver(req).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(req);
+
+setSource(makeSample(), true);
+layout();
+// sample: crown (470,315) and chin (470,680) in a 900×1200 image
+alignTo({x:20, y:-285}, {x:20, y:80});
+syncUI(); req();
+})();
+</script>
+</body></html>
